@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Minimize2, Maximize2, Send, AlertCircle, Key } from 'lucide-react';
+import { MessageCircle, X, Minimize2, Maximize2, Send, AlertCircle, Key, Trash } from 'lucide-react';
 import { format } from 'date-fns';
 import DOMPurify from 'dompurify';
 import { useChatStore } from '../store/chatStore';
@@ -16,10 +16,12 @@ const ChatWidget: React.FC = () => {
     toggleMinimize,
     addMessage,
     setLoading,
+    clearMessages,
   } = useChatStore();
   
   const [apiConfigured, setApiConfigured] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -127,6 +129,15 @@ const ChatWidget: React.FC = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <button
+                  type="button"
+                  onClick={() => setShowClearConfirm(true)}
+                  className="p-1 hover:bg-red-600 rounded"
+                  aria-label="Clear chat"
+                  title="Clear chat"
+                >
+                  <Trash size={16} />
+                </button>
+                <button
                   onClick={toggleMinimize}
                   className="p-1 hover:bg-blue-700 rounded"
                   aria-label={isMinimized ? 'Maximize chat' : 'Minimize chat'}
@@ -142,6 +153,36 @@ const ChatWidget: React.FC = () => {
                 </button>
               </div>
             </div>
+
+            {/* Confirmation Dialog */}
+            {showClearConfirm && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+                <div className="bg-white rounded-lg shadow-lg p-6 w-80 flex flex-col items-center">
+                  <Trash className="text-red-600 mb-2" size={32} />
+                  <div className="font-semibold mb-2 text-center">Clear all chat messages?</div>
+                  <div className="text-sm text-gray-600 mb-4 text-center">
+                    This action cannot be undone.
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700"
+                      onClick={() => {
+                        clearMessages();
+                        setShowClearConfirm(false);
+                      }}
+                    >
+                      Yes, Clear
+                    </button>
+                    <button
+                      className="bg-gray-200 text-gray-800 px-4 py-1 rounded hover:bg-gray-300"
+                      onClick={() => setShowClearConfirm(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <AnimatePresence>
               {!isMinimized && (

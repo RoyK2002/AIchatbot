@@ -1,15 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { ChatState, Message } from '../types/chat';
 
-export const useChatStore = create<ChatState>()(
+export const useChatStore = create(
   persist(
     (set) => ({
       messages: [],
       isOpen: false,
       isMinimized: false,
       isLoading: false,
-      addMessage: (content: string, role: 'user' | 'assistant', error = false) =>
+      addMessage: (content, role, error = false) =>
         set((state) => ({
           messages: [
             ...state.messages,
@@ -24,7 +23,7 @@ export const useChatStore = create<ChatState>()(
         })),
       toggleOpen: () => set((state) => ({ isOpen: !state.isOpen, isMinimized: false })),
       toggleMinimize: () => set((state) => ({ isMinimized: !state.isMinimized })),
-      setLoading: (loading: boolean) => set({ isLoading: loading }),
+      setLoading: (loading) => set({ isLoading: loading }),
       clearMessages: () => set({ messages: [] }),
     }),
     {
